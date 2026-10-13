@@ -1,2 +1,3 @@
-cmake --build build
-.\build\Debug\CrowdSimulation.exe
+cmake -S . -B build-local -A x64 "-DCMAKE_TOOLCHAIN_FILE=C:/dev/vcpkg/scripts/buildsystems/vcpkg.cmake"
+cmake --build build-local --config Debug
+.\build-local\Debug\CrowdSimulation.exe

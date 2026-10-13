@@ -1,3 +1,0 @@
-C:/Users/nono-/Desktop/my_project/CrowdSimulation/build/CMakeFiles/CrowdSimulation.dir
-C:/Users/nono-/Desktop/my_project/CrowdSimulation/build/CMakeFiles/ALL_BUILD.dir
-C:/Users/nono-/Desktop/my_project/CrowdSimulation/build/CMakeFiles/ZERO_CHECK.dir

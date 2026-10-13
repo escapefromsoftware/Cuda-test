@@ -15,7 +15,7 @@ if "%~1"=="" (
 
 for %%F in ("%SOURCE%") do set "OUTPUT=%%~nF.exe"
 
-nvcc -Xcompiler "/utf-8" "%SOURCE%" -o "%OUTPUT%"
+nvcc -std=c++17 -Xcompiler "/utf-8" "%SOURCE%" -o "%OUTPUT%"
 if errorlevel 1 exit /b %errorlevel%
 
 echo.

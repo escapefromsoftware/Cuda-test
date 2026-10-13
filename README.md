@@ -36,6 +36,55 @@ ex.exe
 
 ほかのサンプルは `ex.cu` を目的の `.cu` ファイル名に替えてください。`cuda cpp/build.bat` もありますが、Visual Studio と CUDA Toolkit のパスが作成者のPC向けに固定されています。別のPCではパスを合わせるか、上の `nvcc` コマンドを使ってください。
 
+大量の独立した計算を試すには `mass_compute.cu` を使えます。GPU の計算時間と結果コピーを含む時間、CPU の計算時間を表示し、全要素の結果を照合します。引数は要素数と、各要素に対する計算の反復回数です。
+
+```bat
+cd "cuda cpp"
+build.bat mass_compute.cu
+mass_compute.exe 4194304 256
+```
+
+引数を省くと 1,048,576 要素をそれぞれ 256 回処理します。計測値は実行環境や負荷で変わります。
+
+GPU に継続して計算負荷をかける実験は `a5.cu` です。約104万要素それぞれで4096回の浮動小数点演算ループを実行し、指定時間まで繰り返します。既定は10秒で、Ctrl+Cでも停止できます。
+
+```bat
+build.bat a5.cu
+a5.exe 60
+```
+
+`a5.exe 60` は60秒間実行します。秒数は1〜3600で指定できます。
+
+`a6.cu` は2つの正方行列の積 `C = A x B` をGPUで計算します。1スレッドが結果の1要素を担当し、16 x 16の部分行列を共有メモリで使い回します。引数は行列の一辺のサイズと計測する反復回数です。
+
+```bat
+build.bat a6.cu
+a6.exe 2048 10
+```
+
+既定は1024 x 1024の行列を1回です。サイズは1〜4096、反復回数は1〜100で指定できます。初回の準備として計測前にも1回計算します。GPUの平均計算時間・転送を含む合計時間・各行列の左上4 x 4を表示します。サイズ128以下は全要素、それより大きい行列は64要素をCPUで検算します。入力行列の値は`a6.cu`の初期化ループで変更できます。
+
+RSA の暗号化と復号は別々のプログラムです。`rsa_encrypt.cu` は公開鍵でテスト用の整数列を GPU で暗号化し、`rsa_ciphertext.bin` に保存します。`rsa_decrypt.cu` はそのファイルを読み、秘密鍵で GPU 復号して `rsa_plaintext.bin` に保存します。両方とも CPU で全件を検算し、復号側では元の整数列との一致も確認します。
+
+```bat
+cd "cuda cpp"
+build.bat rsa_encrypt.cu
+build.bat rsa_decrypt.cu
+```
+
+`build.bat` はビルド後にプログラムも実行します。暗号化側を先に実行してください。既定の要素数は 1,048,576 件です。419 万件に増やす場合や、ファイル名を指定する場合は次の順で実行します。
+
+```bat
+rsa_encrypt.exe 4194304 rsa_ciphertext_large.bin
+rsa_decrypt.exe rsa_ciphertext_large.bin rsa_plaintext_large.bin
+```
+
+共通の計算・ファイル処理は `rsa_common.cuh` にあり、秘密指数 `d` は `rsa_decrypt.cu` にあります。出力ファイルは Windows の little-endian 形式で、先頭の 4 個の `uint32_t` が識別子・公開鍵の法・公開指数・要素数、続いて各要素の `uint32_t` 値が並びます。暗号文ファイルに秘密鍵は含めません。ファイルの保存・読み込み時間は GPU の計測時間に含めません。
+
+公開鍵の法を試し割りする実験は `rsa_factor.cu` に分けています。`build.bat rsa_factor.cu` で実行できます。
+
+これらはパディングのない小さな鍵による教材用 RSA です。実際の RSA 鍵や暗号文を扱う実装ではありません。特に大きな公開鍵の解読には、この試し割りは現実的な方法ではありません。
+
 ### 3. OpenGL 用のライブラリを導入する
 
 `CrowdSimulation` は OpenGL、GLFW、GLAD を使います。Windows の OpenGL ライブラリはグラフィックスドライバー側で提供され、GLFW と GLAD は [vcpkg](https://learn.microsoft.com/en-us/vcpkg/get_started/get-started-vs) で導入できます。以下は PowerShell の例です。
